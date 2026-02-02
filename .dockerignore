@@ -1,0 +1,26 @@
+# Version control
+.git
+.gitignore
+
+# Python cache
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+# Environment & Secrets
+venv/
+env/
+.env
+secrets_store.json
+profiles/*.json
+my_profile.json
+
+# Local output
+output/
+temp_*.mp4
+*.mp4
+
+# IDEs
+.vscode
+.idea

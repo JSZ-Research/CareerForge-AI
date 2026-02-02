@@ -602,6 +602,9 @@ with tab_coach:
                 ctx = webrtc_streamer(
                     key="interview-recorder",
                     mode=WebRtcMode.SENDRECV,
+                    rtc_configuration={
+                        "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
+                    },
                     video_transformer_factory=recorder_utils.FaceMeshProcessor,
                     async_processing=True,
                     video_html_attrs={
