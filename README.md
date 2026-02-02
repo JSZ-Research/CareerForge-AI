@@ -87,7 +87,7 @@ MIT License. Built for the Google Gemini Developer Competition.
 
 This project was developed under the **JSZ-Research** GitHub organization for the Google Gemini Developer Competition.
 
-*   **Hanson He** ([@HansonHe](https://github.com/HansonHe))  
+*   **Hanson He** ([@HansonHe](https://github.com/HansonHe-UW))  
     *Primary Architect & Lead Developer.* Responsible for the core engine, multimodal integration, and the implementation of the AI Video Interview Coach.
 *   **Jiamu Shangguan**, **Kaius Jin**, **Junkai Zhao**  
     *Strategy & Product Advisors.* Contributed critical product feedback, UI/UX optimization suggestions, and feature roadmap planning.
