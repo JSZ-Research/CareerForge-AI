@@ -67,7 +67,7 @@
     ```
 
     **🪟 Windows**:
-    Double-click `setup.bat` first (to install), then double-click `start_app.bat` to launch.
+    Double-click `setup.bat` first (to install), then double-click `start_app.bat` to launch. 
 
 
 ---
