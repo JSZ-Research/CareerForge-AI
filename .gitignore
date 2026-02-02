@@ -1,0 +1,30 @@
+# Secrets
+secrets_store.json
+.env
+
+# User Data
+profiles/*.json
+my_profile.json
+output/
+
+# Python / Environment
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# OS
+.DS_Store
+.DS_Store?
+
+# IDEs
+.vscode/
+.idea/
+
+# Streamlit
+.streamlit/secrets.toml
