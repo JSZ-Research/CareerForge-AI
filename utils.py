@@ -5,8 +5,27 @@ import json
 import PyPDF2
 from openai import OpenAI
 import google.generativeai as genai
+from gtts import gTTS
+from io import BytesIO
 
 # --- Helpers ---
+
+def text_to_speech(text):
+    """
+    Converts text to speech using Google TTS.
+    Returns: BytesIO object containing the MP3 audio.
+    """
+    try:
+        if not text:
+            return None
+        tts = gTTS(text=text, lang='en')
+        audio_bytes = BytesIO()
+        tts.write_to_fp(audio_bytes)
+        audio_bytes.seek(0)
+        return audio_bytes
+    except Exception as e:
+        print(f"TTS Error: {e}")
+        return None
 
 def clean_json_text(text):
     """

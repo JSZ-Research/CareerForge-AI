@@ -592,7 +592,23 @@ with tab_coach:
                 # Display Current Question
                 current_q = queue[idx]
                 st.session_state.current_question = current_q
-                st.info(f"**🎤 Please Answer:**\n\n### {current_q}")
+                
+                # --- AI Voice Interviewer ---
+                voice_col1, voice_col2 = st.columns([4, 1])
+                with voice_col1:
+                     st.info(f"**🎤 Please Answer:**\n\n### {current_q}")
+                with voice_col2:
+                    auto_play = st.checkbox("🔊 Voice", value=True, help="Read question aloud")
+                
+                if auto_play:
+                    # Simple caching: only generate if we haven't already for this specific question
+                    # OR just generate (gTTS is reasonably fast for one sentence)
+                    # To prevent re-running on every interaction, we could cache, but Streamlit reruns might be okay.
+                    # Let's try direct generation first. 
+                    audio_data = utils.text_to_speech(current_q)
+                    if audio_data:
+                        st.audio(audio_data, format="audio/mp3", start_time=0)
+                # ----------------------------
                 
                 st.subheader("2. Upload/Record Answer")
             
