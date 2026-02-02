@@ -690,7 +690,7 @@ with tab_coach:
                                 target_video, 
                                 jd_context, 
                                 st.session_state.api_key, 
-                                selected_model_name,
+                                "gemini-3-pro-preview", # Hardcoded to Gemini 3 for Hackathon consistency
                                 question_context=st.session_state.current_question
                             )
                             
