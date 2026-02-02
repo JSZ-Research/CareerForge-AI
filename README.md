@@ -58,16 +58,17 @@
     cd CareerForge-AI
     ```
 
-2.  **Setup Environment** (macOS/Linux)
+2.  **Setup & Run**
+
+    **🍏 macOS / Linux**:
     ```bash
     ./setup.sh
-    ```
-
-3.  **Run the App**
-    ```bash
     ./start_app.command
     ```
-    *(Note: If permission denied on macOS, right-click `start_app.command` and select "Open" to bypass security check once.)*
+
+    **🪟 Windows**:
+    Double-click `setup.bat` first (to install), then double-click `start_app.bat` to launch.
+
 
 ---
 
