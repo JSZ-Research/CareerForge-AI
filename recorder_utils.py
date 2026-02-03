@@ -132,6 +132,7 @@ class FaceMeshProcessor(VideoProcessorBase):
         return av.VideoFrame.from_ndarray(img, format="bgr24")
 from streamlit_webrtc import VideoProcessorBase, AudioProcessorBase
 import subprocess
+import imageio_ffmpeg
 
 class AudioRecorder(AudioProcessorBase):
     def __init__(self):
@@ -168,10 +169,12 @@ class AudioRecorder(AudioProcessorBase):
 
 def merge_av_files(video_path, audio_path, output_path):
     """
-    Merges video and audio using ffmpeg.
+    Merges video and audio using ffmpeg (via imageio-ffmpeg wrapper).
     """
+    ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
+    
     cmd = [
-        "ffmpeg", "-y",
+        ffmpeg_exe, "-y",
         "-i", video_path,
         "-i", audio_path,
         "-c:v", "copy",
