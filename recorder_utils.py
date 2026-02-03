@@ -182,6 +182,9 @@ def merge_av_files(video_path, audio_path, output_path):
     try:
         subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         return output_path
+    except FileNotFoundError:
+        print("⚠️ FFmpeg not found. Audio merge skipped. Please install ffmpeg.")
+        return video_path # Fallback to silent/video-only
     except subprocess.CalledProcessError as e:
         print(f"FFmpeg Merge Fail: {e}")
         return video_path # Fallback to silent video
