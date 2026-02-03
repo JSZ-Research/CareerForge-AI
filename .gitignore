@@ -28,3 +28,9 @@ pip-delete-this-directory.txt
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Temp Video Files (Privacy)
+*.mp4
+*.mov
+*.avi
+*.webm

@@ -4,14 +4,45 @@ import os
 import time
 import threading
 import mediapipe as mp
-# ... imports
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
+from streamlit_webrtc import VideoProcessorBase
 
-class FaceMeshProcessor(VideoTransformerBase):
+class FaceMeshProcessor(VideoProcessorBase):
     def __init__(self):
-        # ...
-        self.start_time = 0
+        self.output_file = "temp_live_recording.mp4"
+        self.container = None
+        self.stream = None
+        self.record = False
         self.lock = threading.Lock()
-        # ...
+        self.start_time = 0
+        
+        # Initialize Face Landmarker (New API)
+        self.landmarker = None
+        model_path = "face_landmarker.task"
+        
+        if os.path.exists(model_path):
+            try:
+                base_options = python.BaseOptions(model_asset_path=model_path)
+                options = vision.FaceLandmarkerOptions(
+                    base_options=base_options,
+                    output_face_blendshapes=False,
+                    num_faces=1)
+                self.landmarker = vision.FaceLandmarker.create_from_options(options)
+                print("MediaPipe FaceLandmarker loaded successfully.")
+            except Exception as e:
+                self.error_msg = str(e)
+                print(f"MediaPipe Init Failed: {e}")
+        else:
+            self.error_msg = "Model not found"
+            print("MediaPipe Model not found.")
+
+        if hasattr(self, 'landmarker') and self.landmarker:
+             self.error_msg = None
+
+
+        # Fallback
+        self.face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
     def start_recording(self):
         with self.lock:
@@ -61,7 +92,9 @@ class FaceMeshProcessor(VideoTransformerBase):
             faces = self.face_cascade.detectMultiScale(gray, 1.1, 5)
             for (x, y, w, h) in faces:
                 cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
-                cv2.putText(img, "OpenCV Fallback", (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+                err_text = f"Fallback: {self.error_msg}" if getattr(self, 'error_msg', None) else "OpenCV Fallback"
+                # Wrapping text
+                cv2.putText(img, err_text, (10, h-20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
 
         # Overlay
         status_color = (0, 0, 255) if self.record else (0, 255, 0)

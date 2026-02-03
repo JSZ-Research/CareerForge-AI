@@ -114,6 +114,17 @@ with st.sidebar:
 import recorder_utils 
 from streamlit_webrtc import webrtc_streamer, WebRtcMode
 
+# --- Callbacks ---
+def go_next_question():
+    st.session_state.current_q_index += 1
+    st.session_state.recorded_video_path = None
+
+def finish_interview():
+    st.session_state.questions_queue = []
+    st.session_state.current_q_index = 0
+    st.session_state.recorded_video_path = None
+
+
 st.title("CareerForge AI: Professional Career Suite")
 tab_generator, tab_review, tab_coach, tab_settings = st.tabs(["🚀 Generator", "🧪 Resume Review", "🎥 Interview Coach", "⚙️ Settings"])
 
@@ -615,7 +626,7 @@ with tab_coach:
                     rtc_configuration={
                         "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
                     },
-                    video_transformer_factory=recorder_utils.FaceMeshProcessor,
+                    video_processor_factory=recorder_utils.FaceMeshProcessor,
                     async_processing=True,
                     video_html_attrs={
                         "style": {"width": "100%"},
@@ -625,19 +636,19 @@ with tab_coach:
                     }
                 )
                 
-                if ctx.video_transformer:
+                if ctx.video_processor:
                     # Recording Controls
-                    if not ctx.video_transformer.record:
+                    if not ctx.video_processor.record:
                         if st.button("Start Recording"):
-                            ctx.video_transformer.start_recording()
-                            st.experimental_rerun()
+                            ctx.video_processor.start_recording()
+                            st.rerun()
                     else:
                         st.error("🔴 Recording in progress...")
                         if st.button("Stop Recording"):
-                            saved_path = ctx.video_transformer.stop_recording()
+                            saved_path = ctx.video_processor.stop_recording()
                             st.session_state.recorded_video_path = saved_path
                             st.success(f"Saved to {saved_path}")
-                            st.experimental_rerun()
+                            st.rerun()
                             
             # --- File Uploader ---
             st.divider()
@@ -728,20 +739,14 @@ with tab_coach:
                                         
                                         if q_idx < q_len - 1:
                                             # Next
-                                            if st.button("➡️ Next Question", type="primary", key="btn_next_q"):
-                                                st.session_state.current_q_index += 1
-                                                st.session_state.recorded_video_path = None
-                                                st.rerun()
+                                            # Next
+                                            st.button("➡️ Next Question", type="primary", key="btn_next_q", on_click=go_next_question)
                                         else:
                                             # Finish
-                                            if st.button("🎉 Finish Interview", type="primary", key="btn_finish_int"):
-                                                st.session_state.questions_queue = []
-                                                st.session_state.current_q_index = 0
-                                                st.session_state.recorded_video_path = None
+                                            # Finish
+                                            if st.button("🎉 Finish Interview", type="primary", key="btn_finish_int", on_click=finish_interview):
                                                 st.success("All questions completed!")
                                                 st.balloons()
-                                                time.sleep(2)
-                                                st.rerun()
                                     
                             else:
                                 st.error(f"Analysis Failed: {res['error']}")
