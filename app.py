@@ -27,10 +27,10 @@ DEFAULTS = {
     "gen_metadata": {},
     "last_cv_text": None,
     "last_job_description": None,
-    "recorded_video_path": None, # New
-    "current_question": None, # New
-    "resume_review_result": None, # New
-    "questions_queue": [], # Mock Interview
+    "recorded_video_path": None,
+    "current_question": None, 
+    "resume_review_result": None, 
+    "questions_queue": [], 
     "current_q_index": 0
 }
 
@@ -38,7 +38,6 @@ for k, v in DEFAULTS.items():
     if k not in st.session_state:
         st.session_state[k] = v
 
-# --- Helper: Secrets Loading ---
 def get_secrets_status():
     """Loads secrets considering lock state."""
     pwd = st.session_state.master_password
@@ -137,7 +136,6 @@ with tab_settings:
         
         prov_key = "OpenAI" if provider == "OpenAI" else "Gemini"
         
-        # Model (Cosmetic / passed to logic)
         MODEL_OPTIONS = {
             "Google Gemini": {
                 "gemini-3-flash-preview": "Gemini 3.0 Flash (New/Fast)",
@@ -157,12 +155,12 @@ with tab_settings:
         
         model_map = MODEL_OPTIONS[provider]
         selected_display = st.selectbox("Model", list(model_map.values()))
-        # Reverse map
+        
         selected_model_name = [k for k, v in model_map.items() if v == selected_display][0]
         
         st.markdown("---")
         
-        # Secrets Management
+        
         secrets = get_secrets_status()
         
         if secrets["requires_unlock"]:
@@ -170,10 +168,6 @@ with tab_settings:
         else:
             # Key Selection
             key_list = secrets.get("openai_keys" if provider == "OpenAI" else "gemini_keys", [])
-            
-            # Format for dropdown: "Name (Masked)" -> value is actual key
-            # We need a map. 
-            # key_list is mixed: strings (legacy) or dicts (new)
             
             key_options = {}
             for k_item in key_list:
