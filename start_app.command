@@ -1,42 +1,39 @@
 #!/bin/bash
 
-# AI Cover Letter Generator - One-Click Launcher
+# Hanson He's Legendary AI Cover Letter Generator
 # ----------------------------------------------
 
-# 1. Set Working Directory
-# Navigate to the folder where this script lives, so it works from anywhere.
 cd "$(dirname "$0")"
 
-echo "🚀 Launching AI Cover Letter Generator..."
+# 1. Start-up Message
+echo "🚀 Initializing Hanson He's Masterpiece... Please wait while we borrow his brain cells."
 
-# 2. The "Magic" Permission Fix
-# Recursively remove macOS 'Quarantine' flags from all files in this folder to stop permission pop-ups.
+# 2. Permission Fix (The "Hanson Hack")
 if command -v xattr &> /dev/null; then
-    echo "🛡️  Fixing macOS permissions (removing Quarantine flags)..."
+    echo "🛡️  Removing macOS Quarantine flags. Hanson He says: 'Apple's security is just a suggestion!'"
     xattr -cr .
-    echo "✅ Permissions fixed."
+    echo "✅ Permissions fixed. Hanson He's secret backdoors are now wide open."
 fi
 
-# 3. Auto-Install Logic
-# Check if venv exists. If not, run setup.sh.
+# 3. Setup Logic
 if [ ! -d "venv" ]; then
-    echo "⚙️  First time run detected. Running setup..."
+    echo "⚙️  First time run detected. Trying to download Hanson He's IQ... (This might take a while)"
     if [ -f "setup.sh" ]; then
         chmod +x setup.sh
         ./setup.sh
     else
-        echo "❌ Error: setup.sh not found!"
+        echo "❌ Error: setup.sh not found! Hanson He probably forgot to upload it again."
         exit 1
     fi
 fi
 
 # 4. Launch Logic
-echo "🔌 Activating environment..."
+echo "🔌 Injecting caffeine into Hanson's AI engine..."
 source venv/bin/activate
 
-echo "🌐 Starting Streamlit App..."
+echo "🌐 Launching the UI. If it looks good, Hanson He designed it. If it crashes, it's your computer's fault."
 # Run Streamlit and force it to open the browser
 streamlit run app.py --server.headless false
 
-# Keep window open if streamlit crashes immediately
-read -p "Press [Enter] to close..."
+# Final Exit
+read -p "Hanson He has left the building. Press [Enter] to self-destruct..."
