@@ -620,13 +620,29 @@ with tab_coach:
             # --- Live Recorder (Shared) ---
             with st.expander("🔴 Live Recording (Advanced)", expanded=True):
                 st.write("Real-time Face Mesh Tracking active.")
+                
+                # Dynamic Resolution: Low Res for Cloud, High Res for Local
+                if os.environ.get("IS_CLOUD_ENV"):
+                    video_constraints = {"width": 320, "height": 240, "frameRate": 15}
+                    st.caption("🚀 Cloud Mode: Optimized for Speed (Low Latency)")
+                else:
+                    video_constraints = True # Default High Res
+                    
                 ctx = webrtc_streamer(
                     key="interview-recorder",
                     mode=WebRtcMode.SENDRECV,
+                    media_stream_constraints={"video": video_constraints, "audio": True},
                     rtc_configuration={
-                        "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
+                        "iceServers": [
+                            {"urls": ["stun:stun.l.google.com:19302"]},
+                            {"urls": ["stun:stun1.l.google.com:19302"]},
+                            {"urls": ["stun:stun2.l.google.com:19302"]},
+                            {"urls": ["stun:stun3.l.google.com:19302"]},
+                            {"urls": ["stun:stun4.l.google.com:19302"]},
+                        ]
                     },
                     video_processor_factory=recorder_utils.FaceMeshProcessor,
+                    audio_processor_factory=recorder_utils.AudioRecorder, 
                     async_processing=True,
                     video_html_attrs={
                         "style": {"width": "100%"},
@@ -641,13 +657,25 @@ with tab_coach:
                     if not ctx.video_processor.record:
                         if st.button("Start Recording"):
                             ctx.video_processor.start_recording()
+                            if ctx.audio_processor:
+                                ctx.audio_processor.start_recording()
                             st.rerun()
                     else:
                         st.error("🔴 Recording in progress...")
                         if st.button("Stop Recording"):
-                            saved_path = ctx.video_processor.stop_recording()
-                            st.session_state.recorded_video_path = saved_path
-                            st.success(f"Saved to {saved_path}")
+                            video_path = ctx.video_processor.stop_recording()
+                            audio_path = None
+                            if ctx.audio_processor:
+                                audio_path = ctx.audio_processor.stop_recording()
+                            
+                            final_path = video_path
+                            if video_path and audio_path:
+                                st.info("Merging Audio & Video...")
+                                merged_file = "final_recording_av.mp4"
+                                final_path = recorder_utils.merge_av_files(video_path, audio_path, merged_file)
+                            
+                            st.session_state.recorded_video_path = final_path
+                            st.success(f"Saved to {final_path}")
                             st.rerun()
                             
             # --- File Uploader ---

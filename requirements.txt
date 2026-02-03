@@ -10,3 +10,4 @@ streamlit-webrtc
 av
 mediapipe
 gTTS
+opencv-python-headless

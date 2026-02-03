@@ -130,3 +130,58 @@ class FaceMeshProcessor(VideoProcessorBase):
                     self.container.mux(packet)
                     
         return av.VideoFrame.from_ndarray(img, format="bgr24")
+from streamlit_webrtc import VideoProcessorBase, AudioProcessorBase
+import subprocess
+
+class AudioRecorder(AudioProcessorBase):
+    def __init__(self):
+        self.output_file = "temp_live_audio.mp3"
+        self.container = None
+        self.stream = None
+        self.record = False
+        self.lock = threading.Lock()
+
+    def start_recording(self):
+        with self.lock:
+            self.record = True
+            # mp3 is simpler for ffmpeg merge usually, or aac
+            self.container = av.open(self.output_file, mode="w")
+            self.stream = self.container.add_stream("mp3")
+
+    def stop_recording(self):
+        with self.lock:
+            self.record = False
+            if self.container:
+                for packet in self.stream.encode():
+                    self.container.mux(packet)
+                self.container.close()
+                self.container = None
+                return self.output_file
+        return None
+
+    def recv(self, frame):
+        # frame is av.AudioFrame
+        with self.lock:
+            if self.record and self.container:
+                for packet in self.stream.encode(frame):
+                    self.container.mux(packet)
+
+def merge_av_files(video_path, audio_path, output_path):
+    """
+    Merges video and audio using ffmpeg.
+    """
+    cmd = [
+        "ffmpeg", "-y",
+        "-i", video_path,
+        "-i", audio_path,
+        "-c:v", "copy",
+        "-c:a", "aac",
+        "-strict", "experimental",
+        output_path
+    ]
+    try:
+        subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        return output_path
+    except subprocess.CalledProcessError as e:
+        print(f"FFmpeg Merge Fail: {e}")
+        return video_path # Fallback to silent video
