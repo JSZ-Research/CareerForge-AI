@@ -91,3 +91,7 @@ This project was developed under the **JSZ-Research** GitHub organization for th
     *Primary Architect & Lead Developer.* Responsible for the core engine, multimodal integration, and the implementation of the AI Video Interview Coach.
 *   **Jiamu Shangguan** ([@JiamuShangguan](https://github.com/mu142857)), **Kaius Jin** ([@KaiusJin](https://github.com/KaiusJin)), **Junkai Zhao** ([@JunkaiZhao](https://github.com/anoyume91))  
     *Strategy & Product Advisors.* Contributed critical product feedback, UI/UX optimization suggestions, and feature roadmap planning.
+
+---
+
+[Live Demo](https://youtu.be/yqUrn0oUv18?si=3Hm5OwEJdzJUaa6i)
