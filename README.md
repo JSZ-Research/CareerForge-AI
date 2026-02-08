@@ -7,6 +7,11 @@
 **CareerForge AI** is an all-in-one desktop application designed to give job seekers an unfair advantage. It combines **computer vision**, **multimodal LLMs**, and **agentic workflows** to simulate a real career coach sitting right next to you.
 
 ---
+## 🎥 Live Demo
+
+[![Career Forge AI Demo](https://img.youtube.com/vi/yqUrn0oUv18/0.jpg)](https://youtu.be/yqUrn0oUv18)
+
+---
 
 ## 🔥 Key Features
 
@@ -71,6 +76,14 @@
 
 
 ---
+## 👥 Team & Contributions
+
+This project was developed under the **JSZ-Research** GitHub organization for the Google Gemini Developer Competition.
+
+*   **Hanson He** ([@HansonHe](https://github.com/HansonHe-UW))  
+    *Primary Architect & Lead Developer.* Responsible for the core engine, multimodal integration, and the implementation of the AI Video Interview Coach.
+*   **Jiamu Shangguan** ([@JiamuShangguan](https://github.com/mu142857)), **Kaius Jin** ([@KaiusJin](https://github.com/KaiusJin)), **Junkai Zhao** ([@JunkaiZhao](https://github.com/anoyume91))  
+    *Strategy & Product Advisors.* Contributed critical product feedback, UI/UX optimization suggestions, and feature roadmap planning.
 
 ## 📸 Screenshots
 
@@ -82,18 +95,3 @@
 
 ## 📄 License
 MIT License. Built for the Google Gemini Developer Competition.
-
-## 👥 Team & Contributions
-
-This project was developed under the **JSZ-Research** GitHub organization for the Google Gemini Developer Competition.
-
-*   **Hanson He** ([@HansonHe](https://github.com/HansonHe-UW))  
-    *Primary Architect & Lead Developer.* Responsible for the core engine, multimodal integration, and the implementation of the AI Video Interview Coach.
-*   **Jiamu Shangguan** ([@JiamuShangguan](https://github.com/mu142857)), **Kaius Jin** ([@KaiusJin](https://github.com/KaiusJin)), **Junkai Zhao** ([@JunkaiZhao](https://github.com/anoyume91))  
-    *Strategy & Product Advisors.* Contributed critical product feedback, UI/UX optimization suggestions, and feature roadmap planning.
-
----
-
-## 🎥 Live Demo
-
-[![Career Forge AI Demo](https://img.youtube.com/vi/yqUrn0oUv18/0.jpg)](https://youtu.be/yqUrn0oUv18)
