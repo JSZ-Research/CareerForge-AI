@@ -143,20 +143,24 @@ def _init_gemini_client(api_key, requested_model=None):
     
     # 1. Try requested model if provided
     if requested_model:
+        # First, try to find it in the available list to get the canonical name (e.g. "models/gemini-1.5-flash-001")
         for avail in available_models:
-            # Handle "models/" prefix matching
             clean_avail = avail.replace("models/", "")
             if requested_model == avail or requested_model == clean_avail:
                 selected_model_name = avail
                 break
-    
-    # 2. Fallback to preferences
+        
+        # [Fix P2] If not found in list (e.g. list failed, or preview model), TRUST USER INPUT.
+        # This ensures we don't downgrade gemini-3-* to gemini-1.5 just because it's missing from the list.
+        if not selected_model_name:
+            selected_model_name = requested_model
+
+    # 2. Fallback to preferences (Only if no requested model, or requested was None)
     if not selected_model_name:
         preferences = [
             "gemini-2.0-flash",
             "gemini-1.5-flash",
             "gemini-1.5-pro",
-            "gemini-1.0-pro"
         ]
         for pref in preferences:
             for avail in available_models:
@@ -167,7 +171,7 @@ def _init_gemini_client(api_key, requested_model=None):
                 break
 
     if not selected_model_name:
-        selected_model_name = available_models[0]
+        selected_model_name = "gemini-1.5-flash" # Ultimate fallback
 
     return client, selected_model_name, None
 

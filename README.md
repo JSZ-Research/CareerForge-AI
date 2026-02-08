@@ -1,8 +1,8 @@
 # CareerForge AI: Professional Career Suite 🚀
 
-**The Ultimate AI Career Copilot powered by Google Gemini 3 Pro.**
+**The Ultimate AI Career Copilot powered by Google Gemini (via `google-genai` SDK).**
 
-[![Built with Streamlit](https://img.shields.io/badge/Built%20with-Streamlit-FF4B4B.svg)](https://streamlit.io) [![Powered by Gemini](https://img.shields.io/badge/Powered%20by-Gemini%203%20Pro-4285F4.svg)](https://deepmind.google/technologies/gemini/) [![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB.svg)](https://python.org)
+[![Built with Streamlit](https://img.shields.io/badge/Built%20with-Streamlit-FF4B4B.svg)](https://streamlit.io) [![Powered by Gemini](https://img.shields.io/badge/Powered%20by-Google%20GenAI-4285F4.svg)](https://deepmind.google/technologies/gemini/) [![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB.svg)](https://python.org)
 
 **CareerForge AI** is an all-in-one desktop application designed to give job seekers an unfair advantage. It combines **computer vision**, **multimodal LLMs**, and **agentic workflows** to simulate a real career coach sitting right next to you.
 
@@ -37,7 +37,7 @@
 ## 🛠️ Tech Stack
 
 *   **Core**: Python, Streamlit
-*   **AI Models**: Google Gemini 3 Pro (Multimodal), Gemini 3 Flash (Fast Inference)
+*   **AI Models**: Google Gemini 2.0 Flash / 1.5 Pro (via `google-genai` SDK)
 *   **Computer Vision**: Google MediaPipe (Face Landmarker)
 *   **Communication**: WebRTC (`streamlit-webrtc`) for real-time video streaming
 *   **Audio**: gTTS (Google Text-to-Speech)
