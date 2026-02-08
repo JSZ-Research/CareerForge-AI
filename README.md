@@ -94,4 +94,8 @@ This project was developed under the **JSZ-Research** GitHub organization for th
 
 ---
 
-[Live Demo](https://youtu.be/yqUrn0oUv18?si=3Hm5OwEJdzJUaa6i)
+## 🎥 Live Demo
+
+[![Career Forge AI Demo](https://img.youtube.com/vi/yqUrn0oUv18/maxresdefault.jpg)](https://youtu.be/yqUrn0oUv18)
+
+> [Click here to watch the demo video if the image doesn't load](https://youtu.be/yqUrn0oUv18)
