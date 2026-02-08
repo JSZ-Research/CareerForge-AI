@@ -198,7 +198,11 @@ with tab_settings:
                 new_key_name = st.text_input("Key Name (e.g. Personal)", value="My Key")
                 save_check = st.checkbox("Save to Vault")
                 
-                current_api_key = new_key_val
+                # FIX: Always update session state so new key is usable immediately
+                if new_key_val:
+                    st.session_state.api_key = new_key_val
+                    st.success("✅ Key active for this session")
+                
                 if save_check and new_key_val:
                     if secrets["is_encrypted"]:
                         if st.button("💾 Save Encrypted"):
@@ -433,15 +437,16 @@ with tab_generator:
                     mime="application/pdf",
                     icon="📑"
                 )
-                
-                if "LaTeX" in formats and st.session_state.latex_data:
-                    dl_cols[2].download_button(
-                        label="Download .tex",
-                        data=st.session_state.latex_data,
-                        file_name="cover_letter.tex",
-                        mime="application/x-tex",
-                        icon="📜"
-                    )
+            
+            # FIX: LaTeX download is now independent of PDF selection
+            if "LaTeX" in formats and st.session_state.latex_data:
+                dl_cols[2].download_button(
+                    label="Download .tex",
+                    data=st.session_state.latex_data,
+                    file_name="cover_letter.tex",
+                    mime="application/x-tex",
+                    icon="📜"
+                )
 
 # ==========================
 # TAB: RESUME REVIEW
@@ -671,7 +676,9 @@ with tab_coach:
                             final_path = video_path
                             if video_path and audio_path:
                                 st.info("Merging Audio & Video...")
-                                merged_file = "final_recording_av.mp4"
+                                # FIX: Use unique filename to prevent conflicts
+                                import uuid
+                                merged_file = f"merged_{uuid.uuid4().hex[:8]}.mp4"
                                 final_path = recorder_utils.merge_av_files(video_path, audio_path, merged_file)
                             
                             st.session_state.recorded_video_path = final_path

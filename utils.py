@@ -271,7 +271,8 @@ def generate_cover_letter_chain_gemini(cv_text, job_description, api_key, user_i
     usage = {"input_chars": 0, "output_chars": 0}
     
     try:
-        active_model, active_model_name, error = _init_gemini_model(api_key)
+        # FIX: Pass model_name to respect user's model selection
+        active_model, active_model_name, error = _init_gemini_model(api_key, model_name)
         if error:
             return {"ok": False, "error": error, "usage": usage}
 
@@ -513,9 +514,16 @@ def upload_video_to_gemini(video_file, api_key):
         if os.path.exists(temp_filename):
             os.remove(temp_filename)
             
-        # Poll for state
+        # Poll for state with timeout (FIX: prevent infinite blocking)
+        MAX_WAIT_SECONDS = 60
+        poll_start = time.time()
+        
         while video_file_ref.state.name == "PROCESSING":
-            print("Processing video...", video_file_ref.state.name)
+            elapsed = time.time() - poll_start
+            if elapsed > MAX_WAIT_SECONDS:
+                return None, f"Video processing timed out after {MAX_WAIT_SECONDS}s. Please try a shorter video."
+            
+            print(f"Processing video... ({int(elapsed)}s elapsed)")
             time.sleep(2)
             video_file_ref = genai.get_file(video_file_ref.name)
             

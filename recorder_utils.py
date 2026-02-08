@@ -3,14 +3,23 @@ import cv2
 import os
 import time
 import threading
+import uuid
 import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 from streamlit_webrtc import VideoProcessorBase
 
+# FIX: Generate unique session ID for filenames to prevent multi-user conflicts
+def _generate_session_filename(prefix: str, extension: str) -> str:
+    """Generates a unique filename using UUID to prevent conflicts."""
+    session_id = uuid.uuid4().hex[:8]
+    timestamp = int(time.time())
+    return f"{prefix}_{session_id}_{timestamp}.{extension}"
+
 class FaceMeshProcessor(VideoProcessorBase):
     def __init__(self):
-        self.output_file = "temp_live_recording.mp4"
+        # FIX: Use unique filename per session
+        self.output_file = _generate_session_filename("recording_video", "mp4")
         self.container = None
         self.stream = None
         self.record = False
@@ -136,7 +145,8 @@ import imageio_ffmpeg
 
 class AudioRecorder(AudioProcessorBase):
     def __init__(self):
-        self.output_file = "temp_live_audio.mp3"
+        # FIX: Use unique filename per session
+        self.output_file = _generate_session_filename("recording_audio", "mp3")
         self.container = None
         self.stream = None
         self.record = False
