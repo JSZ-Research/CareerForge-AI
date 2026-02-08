@@ -34,10 +34,27 @@ def clean_json_text(text):
     """
     if not text:
         return ""
-    # Try finding the first {...} block that looks like a JSON object
-    match = re.search(r'(\{.*\})', text, re.DOTALL)
-    if match:
-        text = match.group(1)
+    
+    # FIX: Try code fence first (most reliable)
+    fence_match = re.search(r'```(?:json)?\s*(\{[\s\S]*?\})\s*```', text)
+    if fence_match:
+        return fence_match.group(1).strip()
+    
+    # FIX: Non-greedy fallback - find first complete JSON object
+    # This handles nested braces properly for simple cases
+    brace_count = 0
+    start_idx = -1
+    for i, char in enumerate(text):
+        if char == '{':
+            if brace_count == 0:
+                start_idx = i
+            brace_count += 1
+        elif char == '}':
+            brace_count -= 1
+            if brace_count == 0 and start_idx != -1:
+                return text[start_idx:i+1]
+    
+    # Fallback to original behavior if nothing found
     return text.replace("```json", "").replace("```", "").strip()
 
 def extract_text_from_pdf(uploaded_file):
@@ -304,7 +321,8 @@ def generate_cover_letter_chain_gemini(cv_text, job_description, api_key, user_i
         
         try:
             data = json.loads(step1_text)
-        except:
+        except json.JSONDecodeError as e:
+            print(f"JSON parse warning (Step 1): {e}")
             data = {"skills": "Relevant Skills", "company": "Company", "manager": "Hiring Manager", "address": "Headquarters"}
             
         skills_from_jd = data.get("skills", "")
@@ -367,7 +385,9 @@ def generate_cover_letter_chain_gemini(cv_text, job_description, api_key, user_i
         return {"ok": True, "text": response_3.text, "usage": usage, "hr_info_debug": hr_info}
         
     except Exception as e:
-        return {"ok": False, "error": f"Gemini Error (Model: {active_model_name}): {e}", "usage": usage}
+        # FIX: Safely reference active_model_name which may not be defined yet
+        model_info = active_model_name if 'active_model_name' in locals() else "Unknown"
+        return {"ok": False, "error": f"Gemini Error (Model: {model_info}): {e}", "usage": usage}
 
 def generate_resume_review_chain_openai(cv_text, job_description, api_key, model_name="gpt-4o"):
     """
@@ -499,20 +519,16 @@ def upload_video_to_gemini(video_file, api_key):
     """
     genai.configure(api_key=api_key)
     
+    temp_filename = None
     try:
-        # Create a temporary file because File API needs path (or we check if it supports stream)
-        # genai.upload_file supports path. streamlit uploaded_file is a BytesIO.
-        # We need to save it to disk temp first.
-        temp_filename = f"temp_video_{int(time.time())}.mp4"
+        # Create a temporary file because File API needs path
+        # FIX: Use try/finally to ensure cleanup even on exception
+        temp_filename = f"temp_video_{int(time.time())}_{os.getpid()}.mp4"
         with open(temp_filename, "wb") as f:
             f.write(video_file.getbuffer())
             
         print(f"Uploading {temp_filename}...")
         video_file_ref = genai.upload_file(path=temp_filename)
-        
-        # Cleanup local
-        if os.path.exists(temp_filename):
-            os.remove(temp_filename)
             
         # Poll for state with timeout (FIX: prevent infinite blocking)
         MAX_WAIT_SECONDS = 60
@@ -534,6 +550,13 @@ def upload_video_to_gemini(video_file, api_key):
         
     except Exception as e:
         return None, f"Upload failed: {e}"
+    finally:
+        # FIX: Always cleanup temp file
+        if temp_filename and os.path.exists(temp_filename):
+            try:
+                os.remove(temp_filename)
+            except OSError:
+                pass
 
 def generate_interview_question(job_description, api_key, model_name="gemini-3-flash-preview"):
     """

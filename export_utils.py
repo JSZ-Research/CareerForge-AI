@@ -6,19 +6,7 @@ from docx.shared import Pt, Inches
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from fpdf import FPDF
 
-# --- Helper: Markdown Parsing (Basic) ---
-def parse_markdown_to_segments(text):
-    """
-    Splits text into segments of (text, is_bold, is_italic).
-    Very basic, non-nesting support for **bold** and *italic*.
-    Returns list of dicts.
-    """
-    # Placeholder for a real parser. 
-    # For now, we'll return raw text to avoid breaking simple paragraphs
-    # or implement a simple splitter if needed.
-    # Given the complexity, we'll stick to paragraph splitting and basic cleaning for now
-    # unless we do regex split.
-    pass
+# Note: parse_markdown_to_segments was removed - unused placeholder
 
 # --- DOCX Export ---
 def create_docx(data):

@@ -45,9 +45,8 @@ class FaceMeshProcessor(VideoProcessorBase):
         else:
             self.error_msg = "Model not found"
             print("MediaPipe Model not found.")
-
-        if hasattr(self, 'landmarker') and self.landmarker:
-             self.error_msg = None
+        
+        # Note: error_msg is already set properly in branches above
 
 
         # Fallback

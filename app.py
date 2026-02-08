@@ -290,16 +290,25 @@ with tab_settings:
     st.warning("Erase all data? This will delete all Profiles and API Keys permanently (Factory Reset).")
     
     if st.button("🧨 Factory Reset (Clear All Data)", type="primary"):
+        errors = []
         # 1. Delete Secrets
         if os.path.exists(secrets_utils.SECRETS_FILE):
-             try: os.remove(secrets_utils.SECRETS_FILE)
-             except: pass
+            try:
+                os.remove(secrets_utils.SECRETS_FILE)
+            except Exception as e:
+                errors.append(f"Secrets: {e}")
             
         # 2. Delete Profiles
         import shutil
         if os.path.exists(profile_utils.PROFILES_DIR):
-            try: shutil.rmtree(profile_utils.PROFILES_DIR)
-            except: pass
+            try:
+                shutil.rmtree(profile_utils.PROFILES_DIR)
+            except Exception as e:
+                errors.append(f"Profiles: {e}")
+        
+        # FIX: Show warning if any deletion failed
+        if errors:
+            st.warning(f"⚠️ 部分文件删除失败: {', '.join(errors)}")
             
         # 3. Clear Session
         st.session_state.clear()
@@ -717,9 +726,14 @@ with tab_coach:
                     if uploaded_video:
                         target_video = uploaded_video
                     elif st.session_state.get("recorded_video_path"):
-                        # Read local file into BytesIO to mimic UploadedFile
-                        with open(st.session_state.recorded_video_path, "rb") as f:
-                            target_video = BytesIO(f.read())
+                        # FIX: Check file exists before opening
+                        rec_path = st.session_state.recorded_video_path
+                        if os.path.exists(rec_path):
+                            with open(rec_path, "rb") as f:
+                                target_video = BytesIO(f.read())
+                        else:
+                            st.warning("⚠️ 录制文件已被删除，请重新录制")
+                            st.session_state.recorded_video_path = None
                     
                     if not target_video:
                         st.error("❌ No Video Source (Upload or Record).")

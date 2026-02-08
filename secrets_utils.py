@@ -188,7 +188,8 @@ def save_secret_plain(provider, key, name="Key"):
                 data = json.load(f)
         else:
             data = {"openai_keys": [], "gemini_keys": []}
-    except:
+    except (json.JSONDecodeError, IOError) as e:
+        print(f"Secrets load warning: {e}")
         data = {"openai_keys": [], "gemini_keys": []}
 
     target = "openai_keys" if provider == "OpenAI" else "gemini_keys"
