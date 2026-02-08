@@ -1,4 +1,13 @@
 # Changelog
+ 
+## [v1.0.1] - 2026-02-08
+
+### Changed
+- **SDK Migration**: Migrated backend from deprecated `google.generativeai` to `google-genai` (v1.0+).
+- **Model Strategy**: 
+    - Enforced **Gemini 3.0 Pro/Flash** as default models for Interview Coach and Question Generation.
+    - Optimized preference logic to fallback to Gemini 2.0 Flash -> 1.5 Pro/Flash users.
+- **Documentation**: Updated README to reflect current tech stack and model support.
 
 ## [v1.1] - 2026-01-21
 
