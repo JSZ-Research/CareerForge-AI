@@ -5,12 +5,14 @@ import json
 import logging
 import PyPDF2
 from openai import OpenAI
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from gtts import gTTS
 from io import BytesIO
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
 
 def text_to_speech(text):
     """
@@ -106,42 +108,55 @@ def _parse_resume_review_data(data):
         "suggestions": suggestions
     }, None
 
-def _init_gemini_model(api_key, requested_model=None):
-    genai.configure(api_key=api_key)
+def _init_gemini_client(api_key, requested_model=None):
+    """
+    Initializes the Gemini Client and selects the best available model.
+    Returns: (client, active_model_name, error)
+    """
+    try:
+        client = genai.Client(api_key=api_key)
+    except Exception as e:
+        return None, None, f"Failed to initialize Gemini Client: {e}"
+
     active_model_name = "Unknown"
 
     available_models = []
     try:
-        for m in genai.list_models():
-            if 'generateContent' in m.supported_generation_methods:
-                available_models.append(m.name)
+        # client.models.list() returns a Pager, need to iterate
+        for m in client.models.list():
+            # Check supported methods (v1 SDK structure might differ, checking generic 'generateContent')
+            # v1 SDK models usually look like "gemini-..." without "models/" prefix sometimes, or with it.
+            # We'll trust the list.
+            available_models.append(m.name)
     except Exception as e:
-        return None, None, f"Failed to list Gemini models: {e}. Check API Key."
+        # Fallback if list fails (e.g. key permissions), just use defaults
+        logger.warning(f"Failed to list models: {e}. Using defaults.")
+        available_models = [
+            "gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.0-pro"
+        ]
 
     if not available_models:
-        return None, None, "No models available that support 'generateContent'. Check API Key permission."
+         available_models = ["gemini-1.5-flash"] # Hard fallback
 
     # Preference Logic
     selected_model_name = None
     
     # 1. Try requested model if provided
     if requested_model:
-        # Check if requested model (e.g. "gemini-1.5-flash") matches any available full name (e.g. "models/gemini-1.5-flash-001")
         for avail in available_models:
-            if requested_model in avail:
+            # Handle "models/" prefix matching
+            clean_avail = avail.replace("models/", "")
+            if requested_model == avail or requested_model == clean_avail:
                 selected_model_name = avail
                 break
     
-    # 2. Fallback to preferences if selection failed or not provided
+    # 2. Fallback to preferences
     if not selected_model_name:
         preferences = [
-            "gemini-3-flash",
-            "gemini-3-pro",
             "gemini-2.0-flash",
             "gemini-1.5-flash",
             "gemini-1.5-pro",
-            "gemini-1.0-pro",
-            "gemini-pro"
+            "gemini-1.0-pro"
         ]
         for pref in preferences:
             for avail in available_models:
@@ -154,13 +169,7 @@ def _init_gemini_model(api_key, requested_model=None):
     if not selected_model_name:
         selected_model_name = available_models[0]
 
-    try:
-        active_model_name = selected_model_name
-        active_model = genai.GenerativeModel(selected_model_name)
-    except Exception as e:
-        return None, selected_model_name, f"Failed to init model {selected_model_name}: {e}"
-
-    return active_model, active_model_name, None
+    return client, selected_model_name, None
 
 # --- OpenAI Chain ---
 
@@ -284,14 +293,14 @@ def generate_cover_letter_chain_openai(cv_text, job_description, api_key, user_i
 
 def generate_cover_letter_chain_gemini(cv_text, job_description, api_key, user_info, model_name="gemini-1.5-flash", date_str="[Date]"):
     """
-    Generates a cover letter using Google Gemini.
+    Generates a cover letter using Google Gemini (google-genai SDK).
     Returns: {"ok": bool, "text": str, "usage": dict, "error": str}
     """
     usage = {"input_chars": 0, "output_chars": 0}
     
     try:
         # FIX: Pass model_name to respect user's model selection
-        active_model, active_model_name, error = _init_gemini_model(api_key, model_name)
+        client, active_model_name, error = _init_gemini_client(api_key, model_name)
         if error:
             return {"ok": False, "error": error, "usage": usage}
 
@@ -317,7 +326,10 @@ def generate_cover_letter_chain_gemini(cv_text, job_description, api_key, user_i
         """
         usage["input_chars"] += len(prompt_1)
         
-        response_1 = active_model.generate_content(prompt_1)
+        response_1 = client.models.generate_content(
+            model=active_model_name,
+            contents=prompt_1
+        )
         step1_text = clean_json_text(response_1.text)
         usage["output_chars"] += len(response_1.text)
         
@@ -343,7 +355,10 @@ def generate_cover_letter_chain_gemini(cv_text, job_description, api_key, user_i
         CV: {cv_text}
         """
         usage["input_chars"] += len(prompt_2)
-        response_2 = active_model.generate_content(prompt_2)
+        response_2 = client.models.generate_content(
+            model=active_model_name,
+            contents=prompt_2
+        )
         matched_experiences = response_2.text
         usage["output_chars"] += len(matched_experiences)
 
@@ -381,7 +396,10 @@ def generate_cover_letter_chain_gemini(cv_text, job_description, api_key, user_i
         JD: {job_description}
         """
         usage["input_chars"] += len(prompt_3)
-        response_3 = active_model.generate_content(prompt_3)
+        response_3 = client.models.generate_content(
+            model=active_model_name,
+            contents=prompt_3
+        )
         usage["output_chars"] += len(response_3.text)
         
         return {"ok": True, "text": response_3.text, "usage": usage, "hr_info_debug": hr_info}
@@ -456,7 +474,7 @@ def generate_resume_review_chain_gemini(cv_text, job_description, api_key, model
 
 
     try:
-        active_model, active_model_name, error = _init_gemini_model(api_key, model_name)
+        client, active_model_name, error = _init_gemini_client(api_key, model_name)
         if error:
             return {"ok": False, "error": error, "usage": usage}
 
@@ -480,7 +498,10 @@ def generate_resume_review_chain_gemini(cv_text, job_description, api_key, model
         """
         usage["input_chars"] += len(prompt)
 
-        response = active_model.generate_content(prompt)
+        response = client.models.generate_content(
+            model=active_model_name,
+            contents=prompt
+        )
         usage["output_chars"] += len(response.text)
         raw_text = clean_json_text(response.text)
         data = json.loads(raw_text)
@@ -521,7 +542,10 @@ def upload_video_to_gemini(video_file, api_key):
     """
     Uploads a video file to Gemini File API and waits for processing.
     """
-    genai.configure(api_key=api_key)
+    try:
+        client = genai.Client(api_key=api_key)
+    except Exception:
+        return None, "Invalid API Key or Client Init Failed"
     
     temp_filename = None
     try:
@@ -532,7 +556,8 @@ def upload_video_to_gemini(video_file, api_key):
             f.write(video_file.getbuffer())
             
         logger.info(f"Uploading {temp_filename}...")
-        video_file_ref = genai.upload_file(path=temp_filename)
+        # v1 SDK: client.files.upload(path=...) returns a File object (or similar)
+        video_file_ref = client.files.upload(path=temp_filename)
             
         # Poll for state with timeout (FIX: prevent infinite blocking)
         MAX_WAIT_SECONDS = 60
@@ -545,7 +570,8 @@ def upload_video_to_gemini(video_file, api_key):
             
             logger.info(f"Processing video... ({int(elapsed)}s elapsed)")
             time.sleep(2)
-            video_file_ref = genai.get_file(video_file_ref.name)
+            # v1 SDK: client.files.get(name=...)
+            video_file_ref = client.files.get(name=video_file_ref.name)
             
         if video_file_ref.state.name == "FAILED":
             return None, "Video processing failed on Gemini server."
@@ -562,13 +588,15 @@ def upload_video_to_gemini(video_file, api_key):
             except OSError:
                 pass
 
-def generate_interview_question(job_description, api_key, model_name="gemini-3-flash-preview"):
+def generate_interview_question(job_description, api_key, model_name="gemini-2.0-flash"):
     """
     Generates a tailored interview question based on JD.
     """
-    genai.configure(api_key=api_key)
     try:
-        model = genai.GenerativeModel(model_name)
+        client, active_model_name, error = _init_gemini_client(api_key, model_name)
+        if error:
+             return "Tell me about yourself. (Error: Init failed)"
+
         prompt = f"""
         Context: Job Description
         {job_description}
@@ -577,19 +605,24 @@ def generate_interview_question(job_description, api_key, model_name="gemini-3-f
         The question should test a key skill mentioned in the JD.
         Return ONLY the question text.
         """
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model=active_model_name,
+            contents=prompt
+        )
         return response.text.strip()
     except Exception as e:
         return f"Tell me about a time you demonstrated the skills for this role. (Error generating: {str(e)})"
 
-def generate_interview_questions_3_step(job_description, api_key, model_name="gemini-3-flash-preview"):
+def generate_interview_questions_3_step(job_description, api_key, model_name="gemini-2.0-flash"):
     """
     Generates a structured 3-question interview flow based on JD.
     Returns: List of 3 strings [Q1, Q2, Q3]
     """
-    genai.configure(api_key=api_key)
     try:
-        model = genai.GenerativeModel(model_name)
+        client, active_model_name, error = _init_gemini_client(api_key, model_name)
+        if error:
+            raise ValueError(error)
+
         prompt = f"""
         Context: Job Description
         {job_description}
@@ -604,7 +637,10 @@ def generate_interview_questions_3_step(job_description, api_key, model_name="ge
         ["Q1 text...", "Q2 text...", "Q3 text..."]
         Do not use markdown code blocks.
         """
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model=active_model_name,
+            contents=prompt
+        )
         text = clean_json_text(response.text)
         questions = json.loads(text)
         
@@ -622,22 +658,23 @@ def generate_interview_questions_3_step(job_description, api_key, model_name="ge
             "Where do you see yourself contributing most in the first 90 days?"
         ]
 
-def analyze_interview_video(video_file, job_description, api_key, model_name="gemini-3-pro-preview", question_context=None):
+def analyze_interview_video(video_file, job_description, api_key, model_name="gemini-1.5-pro", question_context=None):
     """
-    Analyzes an interview video using Gemini 3 Pro (Multimodal).
+    Analyzes an interview video using Gemini 1.5 Pro (Multimodal).
     Now context-aware of the specific question asked.
     """
-    genai.configure(api_key=api_key)
+    try:
+        client, active_model_name, error = _init_gemini_client(api_key, model_name)
+        if error:
+            return {"ok": False, "error": error}
+    except Exception as e:
+        return {"ok": False, "error": f"Init failed: {e}"}
     
     # 1. Upload
     video_ref, error = upload_video_to_gemini(video_file, api_key)
     if error:
         return {"ok": False, "error": error}
         
-    # 2. Init Model
-    # We prefer the passed model_name (likely gemini-3-pro)
-    active_model = genai.GenerativeModel(model_name)
-    
     # 3. Prompt
     q_str = f"Specific Question Asked: '{question_context}'" if question_context else "Question: General self-introduction or behavioral question."
     
@@ -672,8 +709,12 @@ def analyze_interview_video(video_file, job_description, api_key, model_name="ge
     
     try:
         # Generate
-        # Note: In Gemini 1.5+, we pass the file ref and text prompt in a list
-        response = active_model.generate_content([video_ref, prompt])
+        # In Google GenAI SDK, we pass contents list.
+        # video_ref is a File object from client.files.upload/get
+        response = client.models.generate_content(
+            model=active_model_name,
+            contents=[video_ref, prompt]
+        )
         
         # Parse JSON
         raw_text = clean_json_text(response.text)

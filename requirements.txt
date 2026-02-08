@@ -1,6 +1,6 @@
 streamlit==1.41.0
 openai>=1.0.0
-google-generativeai>=0.7.0
+google-genai
 pypdf2
 python-docx
 fpdf2
