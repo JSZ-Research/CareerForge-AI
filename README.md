@@ -1,6 +1,6 @@
 # CareerForge AI: Professional Career Suite 🚀
 
-**The Ultimate AI Career Copilot powered by Google Gemini (via `google-genai` SDK).**
+**The Ultimate AI Career Copilot powered by Google Gemini 3 Pro.**
 
 [![Built with Streamlit](https://img.shields.io/badge/Built%20with-Streamlit-FF4B4B.svg)](https://streamlit.io) [![Powered by Gemini](https://img.shields.io/badge/Powered%20by-Google%20GenAI-4285F4.svg)](https://deepmind.google/technologies/gemini/) [![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB.svg)](https://python.org)
 
@@ -12,7 +12,7 @@
 
 ### 1. 🎥 AI Video Interview Coach (Hackathon Highlight)
 *   **Real-time Eye Contact & Expression Analysis**: Uses **MediaPipe Face Mesh** to track your facial cues (micro-expressions, eye contact percentage) in real-time as you speak.
-*   **Multimodal Feedback**: **Gemini 1.5 Pro / 2.0 Flash** watches your video and listens to your audio to provide a second-by-second timeline analysis of your confidence, tone, and answer quality.
+*   **Multimodal Feedback**: **Gemini 3 Pro** watches your video and listens to your audio to provide a second-by-second timeline analysis of your confidence, tone, and answer quality.
 *   **Mock Interview Loop**:
     *   **Dynamic Question Generation**: AI reads the specific Job Description (JD) and generates 3 tailored interview questions (Icebreaker, Behavioral, Situational).
     *   **Sequential Flow**: Simulate a real interview round-by-round with privacy-focused auto-clearing between questions.
@@ -37,7 +37,7 @@
 ## 🛠️ Tech Stack
 
 *   **Core**: Python, Streamlit
-*   **AI Models**: Google Gemini 2.0 Flash / 1.5 Pro (via `google-genai` SDK)
+*   **AI Models**: Google Gemini 3.0 Pro (Multimodal) / 2.0 Flash
 *   **Computer Vision**: Google MediaPipe (Face Landmarker)
 *   **Communication**: WebRTC (`streamlit-webrtc`) for real-time video streaming
 *   **Audio**: gTTS (Google Text-to-Speech)

@@ -158,6 +158,8 @@ def _init_gemini_client(api_key, requested_model=None):
     # 2. Fallback to preferences (Only if no requested model, or requested was None)
     if not selected_model_name:
         preferences = [
+            "gemini-3-pro",
+            "gemini-3-flash",
             "gemini-2.0-flash",
             "gemini-1.5-flash",
             "gemini-1.5-pro",
