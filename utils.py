@@ -594,7 +594,7 @@ def upload_video_to_gemini(video_file, api_key):
             except OSError:
                 pass
 
-def generate_interview_question(job_description, api_key, model_name="gemini-2.0-flash"):
+def generate_interview_question(job_description, api_key, model_name="gemini-3-flash-preview"):
     """
     Generates a tailored interview question based on JD.
     """
@@ -619,7 +619,7 @@ def generate_interview_question(job_description, api_key, model_name="gemini-2.0
     except Exception as e:
         return f"Tell me about a time you demonstrated the skills for this role. (Error generating: {str(e)})"
 
-def generate_interview_questions_3_step(job_description, api_key, model_name="gemini-2.0-flash"):
+def generate_interview_questions_3_step(job_description, api_key, model_name="gemini-3-flash-preview"):
     """
     Generates a structured 3-question interview flow based on JD.
     Returns: List of 3 strings [Q1, Q2, Q3]
@@ -664,9 +664,9 @@ def generate_interview_questions_3_step(job_description, api_key, model_name="ge
             "Where do you see yourself contributing most in the first 90 days?"
         ]
 
-def analyze_interview_video(video_file, job_description, api_key, model_name="gemini-1.5-pro", question_context=None):
+def analyze_interview_video(video_file, job_description, api_key, model_name="gemini-3-pro-preview", question_context=None):
     """
-    Analyzes an interview video using Gemini 1.5 Pro (Multimodal).
+    Analyzes an interview video using Gemini 3 Pro (Multimodal).
     Now context-aware of the specific question asked.
     """
     try:
