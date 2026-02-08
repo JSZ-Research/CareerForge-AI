@@ -1,9 +1,13 @@
 import json
 import os
 import base64
+import logging
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 SECRETS_FILE = "secrets_store.json"
 
@@ -101,7 +105,7 @@ def load_secrets(password: str = None):
                     secrets["openai_keys"] = disk_data.get("openai_keys", [])
                     secrets["gemini_keys"] = disk_data.get("gemini_keys", [])
         except Exception as e:
-            print(f"Error loading secrets: {e}")
+            logger.warning(f"Error loading secrets: {e}")
 
     # Inject Env vars at runtime (not saved to disk)
     if env_openai:
@@ -176,7 +180,7 @@ def save_secret_encrypted(provider, name, key, password):
             json.dump(encrypted_store, f, indent=2)
         return True
     except Exception as e:
-        print(f"Error saving: {e}")
+        logger.warning(f"Error saving: {e}")
         return False
 
 def save_secret_plain(provider, key, name="Key"):
@@ -189,7 +193,7 @@ def save_secret_plain(provider, key, name="Key"):
         else:
             data = {"openai_keys": [], "gemini_keys": []}
     except (json.JSONDecodeError, IOError) as e:
-        print(f"Secrets load warning: {e}")
+        logger.debug(f"Secrets load warning: {e}")
         data = {"openai_keys": [], "gemini_keys": []}
 
     target = "openai_keys" if provider == "OpenAI" else "gemini_keys"

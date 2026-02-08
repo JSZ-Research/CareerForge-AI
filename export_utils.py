@@ -1,12 +1,14 @@
 import io
 import os
 import re
+import logging
 from docx import Document
 from docx.shared import Pt, Inches
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from fpdf import FPDF
 
-# Note: parse_markdown_to_segments was removed - unused placeholder
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # --- DOCX Export ---
 def create_docx(data):
@@ -107,7 +109,7 @@ def create_pdf(data):
             pdf.set_font("DejaVu", size=11)
             font_loaded = True
         except Exception as e:
-            print(f"Font loading error: {e}")
+            logger.warning(f"Font loading error: {e}")
     
     if not font_loaded:
         # Fallback to standard font (Latin-1 limitations)

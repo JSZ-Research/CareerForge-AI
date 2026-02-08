@@ -4,10 +4,14 @@ import os
 import time
 import threading
 import uuid
+import logging
 import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 from streamlit_webrtc import VideoProcessorBase
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # FIX: Generate unique session ID for filenames to prevent multi-user conflicts
 def _generate_session_filename(prefix: str, extension: str) -> str:
@@ -38,13 +42,13 @@ class FaceMeshProcessor(VideoProcessorBase):
                     output_face_blendshapes=False,
                     num_faces=1)
                 self.landmarker = vision.FaceLandmarker.create_from_options(options)
-                print("MediaPipe FaceLandmarker loaded successfully.")
+                logger.info("MediaPipe FaceLandmarker loaded successfully.")
             except Exception as e:
                 self.error_msg = str(e)
-                print(f"MediaPipe Init Failed: {e}")
+                logger.warning(f"MediaPipe Init Failed: {e}")
         else:
             self.error_msg = "Model not found"
-            print("MediaPipe Model not found.")
+            logger.warning("MediaPipe Model not found.")
         
         # Note: error_msg is already set properly in branches above
 
@@ -92,7 +96,7 @@ class FaceMeshProcessor(VideoProcessorBase):
                             cv2.circle(img, (lx, ly), 1, (0, 255, 128), -1) # Sci-fi Green Dot
                     used_mediapipe = True
             except Exception as e:
-                print(f"MP Infer Error: {e}")
+                logger.debug(f"MP Infer Error: {e}")
         
         # Fallback visualization if MP failed or found no face
         if not used_mediapipe:
@@ -195,8 +199,8 @@ def merge_av_files(video_path, audio_path, output_path):
         subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         return output_path
     except FileNotFoundError:
-        print("⚠️ FFmpeg not found. Audio merge skipped. Please install ffmpeg.")
+        logger.warning("FFmpeg not found. Audio merge skipped. Please install ffmpeg.")
         return video_path # Fallback to silent/video-only
     except subprocess.CalledProcessError as e:
-        print(f"FFmpeg Merge Fail: {e}")
+        logger.warning(f"FFmpeg Merge Fail: {e}")
         return video_path # Fallback to silent video

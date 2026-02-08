@@ -2,13 +2,15 @@ import os
 import re
 import time
 import json
+import logging
 import PyPDF2
 from openai import OpenAI
 import google.generativeai as genai
 from gtts import gTTS
 from io import BytesIO
 
-# --- Helpers ---
+# Configure logging
+logger = logging.getLogger(__name__)
 
 def text_to_speech(text):
     """
@@ -24,7 +26,7 @@ def text_to_speech(text):
         audio_bytes.seek(0)
         return audio_bytes
     except Exception as e:
-        print(f"TTS Error: {e}")
+        logger.warning(f"TTS Error: {e}")
         return None
 
 def clean_json_text(text):
@@ -68,7 +70,7 @@ def extract_text_from_pdf(uploaded_file):
             text += page.extract_text() or ""
         return text
     except Exception as e:
-        print(f"Error reading PDF: {e}")
+        logger.warning(f"Error reading PDF: {e}")
         return None
 
 def match_level(score):
@@ -322,7 +324,7 @@ def generate_cover_letter_chain_gemini(cv_text, job_description, api_key, user_i
         try:
             data = json.loads(step1_text)
         except json.JSONDecodeError as e:
-            print(f"JSON parse warning (Step 1): {e}")
+            logger.debug(f"JSON parse warning (Step 1): {e}")
             data = {"skills": "Relevant Skills", "company": "Company", "manager": "Hiring Manager", "address": "Headquarters"}
             
         skills_from_jd = data.get("skills", "")
@@ -487,7 +489,9 @@ def generate_resume_review_chain_gemini(cv_text, job_description, api_key, model
             return {"ok": False, "error": parse_error, "usage": usage}
         return {"ok": True, **parsed, "usage": usage}
     except Exception as e:
-        return {"ok": False, "error": f"Gemini Error (Model: {active_model_name}): {e}", "usage": usage}
+        # FIX: Safely reference active_model_name which may not be defined yet
+        model_info = active_model_name if 'active_model_name' in locals() else "Unknown"
+        return {"ok": False, "error": f"Gemini Error (Model: {model_info}): {e}", "usage": usage}
 
 def generate_cover_letter(cv_text, job_description, api_key, provider, user_info, model_name=None, date_str="[Date]"):
     """
@@ -527,7 +531,7 @@ def upload_video_to_gemini(video_file, api_key):
         with open(temp_filename, "wb") as f:
             f.write(video_file.getbuffer())
             
-        print(f"Uploading {temp_filename}...")
+        logger.info(f"Uploading {temp_filename}...")
         video_file_ref = genai.upload_file(path=temp_filename)
             
         # Poll for state with timeout (FIX: prevent infinite blocking)
@@ -539,7 +543,7 @@ def upload_video_to_gemini(video_file, api_key):
             if elapsed > MAX_WAIT_SECONDS:
                 return None, f"Video processing timed out after {MAX_WAIT_SECONDS}s. Please try a shorter video."
             
-            print(f"Processing video... ({int(elapsed)}s elapsed)")
+            logger.info(f"Processing video... ({int(elapsed)}s elapsed)")
             time.sleep(2)
             video_file_ref = genai.get_file(video_file_ref.name)
             

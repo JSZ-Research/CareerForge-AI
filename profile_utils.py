@@ -2,6 +2,10 @@ import json
 import os
 import shutil
 import re
+import logging
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 PROFILES_DIR = "profiles"
 OLD_PROFILE_FILE = "my_profile.json"
@@ -41,7 +45,7 @@ def ensure_profiles_dir():
             try:
                 shutil.move(OLD_PROFILE_FILE, target)
             except Exception as e:
-                print(f"Migration error: {e}")
+                logger.warning(f"Migration error: {e}")
         else:
              # Just backup/ignore if Default already exists? 
              # Let's just leave it there for now to not be destructive
@@ -72,7 +76,7 @@ def load_profile(profile_name="Default"):
         with open(path, "r") as f:
             return json.load(f)
     except Exception as e:
-        print(f"Failed to load profile: {e}")
+        logger.warning(f"Failed to load profile: {e}")
         return {}
 
 def save_profile(profile_name, data):
@@ -87,6 +91,6 @@ def save_profile(profile_name, data):
             json.dump(data, f, indent=4)
         return True
     except Exception as e:
-        print(f"Error saving profile: {e}")
+        logger.warning(f"Error saving profile: {e}")
         return False
 
