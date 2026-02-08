@@ -77,11 +77,9 @@ This project was developed under the **JSZ-Research** GitHub organization for th
 
 ---
 
-## 📸 Screenshots
+## 📸 Devpost
 
-| Interview Coach | Resume Review |
-|:---:|:---:|
-| *(Placeholders for demo screenshots)* | *(Placeholders for demo screenshots)* |
+**Project Link** (https://devpost.com/software/geminicraft-professional-cover-letter-architect?ref_content=user-portfolio&ref_feature=in_progress)
 
 ---
 
