@@ -7,7 +7,7 @@
 **CareerForge AI** is an all-in-one desktop application designed to give job seekers an unfair advantage. It combines **computer vision**, **multimodal LLMs**, and **agentic workflows** to simulate a real career coach sitting right next to you.
 
 ---
-## 🎥 Live Demo
+## 🎥 Live Demo (Click to watch on Youtube)
 
 [![Career Forge AI Demo](https://img.youtube.com/vi/yqUrn0oUv18/0.jpg)](https://youtu.be/yqUrn0oUv18)
 
@@ -15,7 +15,7 @@
 
 ## 🔥 Key Features
 
-### 1. 🎥 AI Video Interview Coach (Hackathon Highlight)
+### 1. 🎥 AI Video Interview Coach
 *   **Real-time Eye Contact & Expression Analysis**: Uses **MediaPipe Face Mesh** to track your facial cues (micro-expressions, eye contact percentage) in real-time as you speak.
 *   **Multimodal Feedback**: **Gemini 3 Pro** watches your video and listens to your audio to provide a second-by-second timeline analysis of your confidence, tone, and answer quality.
 *   **Mock Interview Loop**:
@@ -36,16 +36,6 @@
 ### 4. 🔒 Privacy & Security Vault
 *   **Local-First Architecture**: Your data lives on your machine.
 *   **Encrypted Secrets**: Built-in vault to encrypt your API keys with a master password (AES-256).
-
----
-
-## 🛠️ Tech Stack
-
-*   **Core**: Python, Streamlit
-*   **AI Models**: Google Gemini 3.0 Pro (Multimodal) / 2.0 Flash
-*   **Computer Vision**: Google MediaPipe (Face Landmarker)
-*   **Communication**: WebRTC (`streamlit-webrtc`) for real-time video streaming
-*   **Audio**: gTTS (Google Text-to-Speech)
 
 ---
 
@@ -74,8 +64,8 @@
     **🪟 Windows**:
     Double-click `setup.bat` first (to install), then double-click `start_app.bat` to launch. 
 
-
 ---
+
 ## 👥 Team & Contributions
 
 This project was developed under the **JSZ-Research** GitHub organization for the Google Gemini Developer Competition.
@@ -85,11 +75,23 @@ This project was developed under the **JSZ-Research** GitHub organization for th
 *   **Jiamu Shangguan** ([@JiamuShangguan](https://github.com/mu142857)), **Kaius Jin** ([@KaiusJin](https://github.com/KaiusJin)), **Junkai Zhao** ([@JunkaiZhao](https://github.com/anoyume91))  
     *Strategy & Product Advisors.* Contributed critical product feedback, UI/UX optimization suggestions, and feature roadmap planning.
 
+---
+
 ## 📸 Screenshots
 
 | Interview Coach | Resume Review |
 |:---:|:---:|
 | *(Placeholders for demo screenshots)* | *(Placeholders for demo screenshots)* |
+
+---
+
+## 🛠️ Tech Stack
+
+*   **Core**: Python, Streamlit
+*   **AI Models**: Google Gemini 3.0 Pro (Multimodal) / 2.0 Flash
+*   **Computer Vision**: Google MediaPipe (Face Landmarker)
+*   **Communication**: WebRTC (`streamlit-webrtc`) for real-time video streaming
+*   **Audio**: gTTS (Google Text-to-Speech)
 
 ---
 
